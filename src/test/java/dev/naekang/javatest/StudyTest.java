@@ -2,7 +2,9 @@ package dev.naekang.javatest;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
@@ -24,6 +26,9 @@ class StudyTest {
 
     int value = 1;
 
+    @RegisterExtension
+    static FindSlowTestExtension findSlowTestExtension = new FindSlowTestExtension(1000L);
+
     @Order(2)
     @FastTest
     @DisplayName("스터디 만들기 fast")
@@ -35,10 +40,11 @@ class StudyTest {
     }
 
     @Order(1)
-    @SlowTest
+    @Test
     @DisplayName("스터디 만들기 slow")
     @Disabled
-    void create_new_study_again() {
+    void create_new_study_again() throws InterruptedException {
+        Thread.sleep(1005L);
         System.out.println(this);
         System.out.println("create1 " + value++);
     }
