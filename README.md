@@ -8,3 +8,6 @@
    - `@ExtendWith`: 선언적 등록
    - `@RegisterExtension`: 코드를 통해 제공
    - `ServiceLoader`: 자동으로 등록
+
+# Mockito 사용
+- 레퍼런스: https://javadoc.io/doc/org.mockito/mockito-core/latest/index.html
