@@ -7,6 +7,7 @@ import dev.naekang.javatest.member.MemberNotFoundException;
 import dev.naekang.javatest.member.MemberService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -73,7 +74,10 @@ class StudyServiceTest {
 
         studyService.createNewStudy(1L, study);
 
-        assertNotNull(study.getOwner());
+
         assertEquals(member, study.getOwner());
+
+        verify(memberService, times(1)).notify(study);
+        verifyNoMoreInteractions(memberService);
     }
 }
