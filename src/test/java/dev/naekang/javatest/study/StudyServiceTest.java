@@ -3,14 +3,19 @@ package dev.naekang.javatest.study;
 import dev.naekang.javatest.domain.Member;
 import dev.naekang.javatest.domain.Study;
 import dev.naekang.javatest.member.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -23,6 +28,7 @@ import static org.mockito.BDDMockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
+@Slf4j
 class StudyServiceTest {
 
     @Mock
@@ -31,9 +37,21 @@ class StudyServiceTest {
     @Autowired
     StudyRepository studyRepository;
 
+//    @Container
+//    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()
+//            .withDatabaseName("studytest");
+
     @Container
-    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()
-            .withDatabaseName("studytest");
+    static GenericContainer postgreSQLContainer = new GenericContainer("postgres")
+            .withExposedPorts(5432)
+            .withEnv("POSTGRES_DB", "studytest");
+
+    @BeforeAll
+    static void beforeAll() {
+        Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
+        postgreSQLContainer.followOutput(logConsumer);
+    }
+
 
     @BeforeEach
     void beforeEach() {
