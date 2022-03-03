@@ -3,24 +3,26 @@ package dev.naekang.javatest.study;
 import dev.naekang.javatest.domain.Member;
 import dev.naekang.javatest.domain.Study;
 import dev.naekang.javatest.member.MemberService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
+@Testcontainers
 class StudyServiceTest {
 
     @Mock
@@ -28,6 +30,15 @@ class StudyServiceTest {
 
     @Autowired
     StudyRepository studyRepository;
+
+    @Container
+    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()
+            .withDatabaseName("studytest");
+
+    @BeforeEach
+    void beforeEach() {
+        studyRepository.deleteAll();
+    }
 
     @Test
     void createNewStudy() {
@@ -42,7 +53,6 @@ class StudyServiceTest {
         Study study = new Study(10, "테스트");
 
         given(memberService.findById(1L)).willReturn(Optional.of(member));
-        given(studyRepository.save(study)).willReturn(study);
 
         // When
         studyService.createNewStudy(1L, study);
@@ -62,7 +72,6 @@ class StudyServiceTest {
         assertNull(study.getOpenedDateTime());
 
         // TODO studyRepository Mock 객체의 save 메소드를호출 시 study를 리턴하도록 만들기.
-        given(studyRepository.save(study)).willReturn(study);
 
         // When
         studyService.openStudy(study);
