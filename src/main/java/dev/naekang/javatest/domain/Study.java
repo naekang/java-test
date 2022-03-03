@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,8 +26,8 @@ public class Study {
 
     private LocalDateTime openedDateTime;
 
-    @ManyToOne
-    private Member owner;
+    @Column(name = "owner_id")
+    private Long ownerId;
 
     public Study(int limit, String name) {
         this.limitCount = limit;
