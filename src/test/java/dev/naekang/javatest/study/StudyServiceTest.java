@@ -8,23 +8,14 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.File;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +26,6 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
 @Slf4j
-@ContextConfiguration(initializers = StudyServiceTest.ContainerPropertyInitializer.class)
 class StudyServiceTest {
 
     @Mock
@@ -44,31 +34,8 @@ class StudyServiceTest {
     @Autowired
     StudyRepository studyRepository;
 
-    @Value("${container.port}")
-    int port;
-
-//    @Container
-//    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()
-//            .withDatabaseName("studytest");
-
     @Container
-    static GenericContainer postgreSQLContainer = new GenericContainer("postgres")
-            .withExposedPorts(5432)
-            .withEnv("POSTGRES_DB", "studytest");
-
-    @BeforeAll
-    static void beforeAll() {
-        Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
-        postgreSQLContainer.followOutput(logConsumer);
-    }
-
-
-    @BeforeEach
-    void beforeEach() {
-        System.out.println("==========");
-        System.out.println(port);
-        studyRepository.deleteAll();
-    }
+    static DockerComposeContainer composeContainer = new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"));
 
     @Test
     void createNewStudy() {
@@ -116,15 +83,6 @@ class StudyServiceTest {
         // TODO memberService의 notify(study)가 호출 됐는지 확인.
         then(memberService).should().notify(study);
 
-    }
-
-    static class ContainerPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-        @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            TestPropertyValues.of("container.port=" + postgreSQLContainer.getMappedPort(5432))
-                    .applyTo(applicationContext.getEnvironment());
-        }
     }
 
 }
